@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Energy Estimator</title>
+
+  <!-- Tailwind via CDN (fastest for MVP) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Optional font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <header class="border-b bg-white">
+    <div class="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-semibold">Solar Energy Estimator</h1>
+        <p class="text-sm text-slate-500">Configuration</p>
+      </div>
+      <div class="text-xs text-slate-500">v0.1</div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-8">
+    <!-- Status banner -->
+    <div id="statusBanner" class="mb-6 hidden rounded-lg border px-4 py-3 text-sm"></div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- Location card -->
+      <section class="rounded-xl bg-white shadow-sm border p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-base font-semibold">1) Location</h2>
+            <p class="text-sm text-slate-500">
+              Use “Locate Me” to populate latitude and longitude.
+            </p>
+          </div>
+
+          <button
+            id="btnLocate"
+            type="button"
+            class="shrink-0 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-white text-sm font-semibold hover:bg-slate-800 active:bg-slate-950 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Locate Me
+          </button>
+        </div>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="latitude">Latitude</label>
+            <input
+              id="latitude"
+              name="latitude"
+              type="number"
+              step="0.000001"
+              inputmode="decimal"
+              placeholder="e.g. 52.2053"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+              readonly
+            />
+            <p class="mt-1 text-xs text-slate-500">Auto-filled from browser geolocation.</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="longitude">Longitude</label>
+            <input
+              id="longitude"
+              name="longitude"
+              type="number"
+              step="0.000001"
+              inputmode="decimal"
+              placeholder="e.g. 0.1218"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+              readonly
+            />
+            <p class="mt-1 text-xs text-slate-500">Auto-filled from browser geolocation.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- System parameters card -->
+      <section class="rounded-xl bg-white shadow-sm border p-5">
+        <h2 class="text-base font-semibold">2) System Parameters</h2>
+        <p class="text-sm text-slate-500">
+          Enter your PV system details. These directly influence the estimate.
+        </p>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="systemCapacityKwp">System Capacity (kWp)</label>
+            <input
+              id="systemCapacityKwp"
+              type="number"
+              step="0.1"
+              min="0"
+              placeholder="e.g. 4.0"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="panelEfficiency">Panel Efficiency (0–1)</label>
+            <input
+              id="panelEfficiency"
+              type="number"
+              step="0.01"
+              min="0"
+              max="1"
+              placeholder="e.g. 0.20"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+            <p class="mt-1 text-xs text-slate-500">Example: 20% = 0.20</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="tiltDeg">Tilt (°)</label>
+            <input
+              id="tiltDeg"
+              type="number"
+              step="1"
+              min="0"
+              max="90"
+              placeholder="e.g. 30"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="azimuthDeg">Azimuth (°)</label>
+            <input
+              id="azimuthDeg"
+              type="number"
+              step="1"
+              min="-180"
+              max="180"
+              placeholder="e.g. 0 (south), -90 (east), 90 (west)"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-slate-700" for="performanceRatio">Performance Ratio (0–1)</label>
+            <input
+              id="performanceRatio"
+              type="number"
+              step="0.01"
+              min="0"
+              max="1"
+              placeholder="e.g. 0.85"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+            <p class="mt-1 text-xs text-slate-500">Typical range: 0.75–0.90</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Date range card -->
+      <section class="rounded-xl bg-white shadow-sm border p-5 lg:col-span-2">
+        <h2 class="text-base font-semibold">3) Date Range</h2>
+        <p class="text-sm text-slate-500">
+          Choose the historical period to query from Open-Meteo Archive.
+        </p>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="startDate">Start Date</label>
+            <input
+              id="startDate"
+              type="date"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700" for="endDate">End Date</label>
+            <input
+              id="endDate"
+              type="date"
+              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div class="flex items-end">
+            <button
+              id="btnCalculate"
+              type="button"
+              class="w-full rounded-lg bg-emerald-600 px-4 py-2 text-white text-sm font-semibold hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              Calculate Energy Generation
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
+          <span class="rounded-full bg-slate-100 px-3 py-1">Required: location + parameters + date range</span>
+          <span class="rounded-full bg-slate-100 px-3 py-1">Next: fetch weather + run PV model</span>
+        </div>
+      </section>
+
+      <!-- Debug / Preview card -->
+      <section class="rounded-xl bg-white shadow-sm border p-5 lg:col-span-2">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-semibold">Current Configuration (Preview)</h2>
+            <p class="text-sm text-slate-500">This is what will be saved and used for estimation.</p>
+          </div>
+          <button
+            id="btnClear"
+            type="button"
+            class="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+          >
+            Clear
+          </button>
+        </div>
+
+        <pre id="configPreview" class="mt-4 overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>
