@@ -1,0 +1,7 @@
+# OS / editor noise
+.DS_Store
+.vscode/
+
+# Optional build output for adding Tailwind build
+dist/
+node_modules/
