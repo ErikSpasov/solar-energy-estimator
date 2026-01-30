@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <header class="border-b bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-semibold">Results Dashboard</h1>
+        <p id="statusText" class="text-sm text-slate-500">Loading…</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="./index.html" class="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-slate-50">
+          Back to Configuration
+        </a>
+        <button id="btnExportCsv" class="rounded-lg bg-slate-900 px-4 py-2 text-white text-sm font-semibold hover:bg-slate-800">
+          Export CSV
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-8">
+    <!-- KPIs -->
+    <section class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-xl bg-white shadow-sm border p-5">
+        <p class="text-sm text-slate-500">Annual Energy</p>
+        <p class="mt-2 text-2xl font-semibold"><span id="kpiAnnual">—</span> <span class="text-sm text-slate-500">kWh/year</span></p>
+      </div>
+
+      <div class="rounded-xl bg-white shadow-sm border p-5">
+        <p class="text-sm text-slate-500">Average Monthly</p>
+        <p class="mt-2 text-2xl font-semibold"><span id="kpiMonthlyAvg">—</span> <span class="text-sm text-slate-500">kWh/month</span></p>
+      </div>
+
+      <div class="rounded-xl bg-white shadow-sm border p-5">
+        <p class="text-sm text-slate-500">Average Daily</p>
+        <p class="mt-2 text-2xl font-semibold"><span id="kpiDailyAvg">—</span> <span class="text-sm text-slate-500">kWh/day</span></p>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="mt-6 grid gap-6 lg:grid-cols-2">
+      <div class="rounded-xl bg-white shadow-sm border p-5">
+        <h2 class="text-base font-semibold">Monthly Energy (kWh)</h2>
+        <div class="mt-4">
+          <canvas id="monthlyChart" height="160"></canvas>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white shadow-sm border p-5">
+        <h2 class="text-base font-semibold">Daily Energy (kWh)</h2>
+        <p class="text-sm text-slate-500 mt-1">Mock shows last 30 days.</p>
+        <div class="mt-4">
+          <canvas id="dailyChart" height="160"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advisory -->
+    <section class="mt-6 rounded-xl bg-white shadow-sm border p-5">
+      <h2 class="text-base font-semibold">Advisory</h2>
+      <div class="mt-2 text-sm text-slate-700">
+        <p>Optimal Tilt: <span id="optTilt">—</span></p>
+        <p>Optimal Azimuth: <span id="optAzimuth">—</span></p>
+      </div>
+      <p class="mt-2 text-xs text-slate-500">Advisory values are optional and depend on whether the model calculates them.</p>
+    </section>
+  </main>
+
+  <script src="./js/results.js"></script>
+</body>
+</html>

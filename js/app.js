@@ -185,6 +185,7 @@ function calculateEnergy() {
   // Save for the next page (Results Dashboard)
   localStorage.setItem("userConfiguration", JSON.stringify(cfg));
   showBanner("ok", "Configuration saved. Next step: fetch weather + run PV model.");
+  window.location.href = "./results.html";
 
   // Later: window.location.href = "./results.html";
 }
