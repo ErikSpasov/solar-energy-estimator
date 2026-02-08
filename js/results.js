@@ -7,9 +7,9 @@ const el = (id) => document.getElementById(id);
 const statusText = el("statusText");           // you likely have this line under title
 const metaLine = el("metaLine");               // location + period line
 
-const annualEl = el("annualEnergy");
-const avgMonthlyEl = el("avgMonthly");
-const avgDailyEl = el("avgDaily");
+const annualEl = el("kpiAnnual");
+const avgMonthlyEl = el("kpiMonthlyAvg");
+const avgDailyEl = el("kpiDailyAvg");
 
 const advisoryTiltEl = el("advisoryTilt");
 const advisoryAzEl = el("advisoryAz");
