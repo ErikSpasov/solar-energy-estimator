@@ -73,15 +73,106 @@
       </div>
     </section>
 
-    <!-- Advisory -->
-    <section class="mt-6 rounded-xl bg-white shadow-sm border p-5">
-      <h2 class="text-base font-semibold">Advisory</h2>
-      <div class="mt-2 text-sm text-slate-700">
-        <p>Optimal Tilt: <span id="advisoryTilt">—</span></p>
-        <p>Optimal Azimuth: <span id="advisoryAz">—</span></p>
-      </div>
-      <p class="mt-2 text-xs text-slate-500">Advisory values are optional and depend on whether the model calculates them.</p>
-    </section>
+  <!-- Advisory -->
+<div class="advisory-section">
+  <h3>Advisory</h3>
+  
+  <div class="advisory-content">
+    <!-- Optimal Tilt Display -->
+    <div class="advisory-item">
+      <span class="label">Optimal Tilt:</span>
+      <span class="value-container">
+        <span id="advisoryTilt" class="value">—</span>°
+      </span>
+    </div>
+    
+    <!-- Optimal Azimuth Display -->
+    <div class="advisory-item">
+      <span class="label">Optimal Azimuth:</span>
+      <span class="value-container">
+        <span id="advisoryAz" class="value">—</span>°
+      </span>
+    </div>
+    
+    <!-- Advisory Note (shows if config is optimal or shows improvement) -->
+    <div id="advisoryNote" class="advisory-note">
+      <!-- This will be populated by JavaScript with one of:
+           - "✓ Your configuration is already optimal!"
+           - "Potential gain: +12% (+450 kWh/year)"
+      -->
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- CSS Styles -->
+<!-- ============================================== -->
+
+<style>
+.advisory-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.advisory-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;  /* Added: vertical alignment */
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.advisory-item .label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* NEW: Container for value + degree symbol */
+.advisory-item .value-container {
+  display: flex;
+  align-items: baseline;  /* Aligns degree symbol with number baseline */
+  justify-content: flex-end;  /* Right-aligns content */
+  min-width: 100px;  /* Ensures consistent spacing */
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.advisory-item .value {
+  display: inline-block;
+  text-align: right;
+  min-width: 50px;  /* Fixed width for numbers */
+  font-variant-numeric: tabular-nums;  /* Monospaced numbers */
+}
+
+.advisory-note {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;  /* Added: center the message */
+}
+
+/* Hide empty advisory note */
+.advisory-note:empty {
+  display: none;
+}
+
+/* Green styling for optimal configuration */
+.text-emerald-600 {
+  color: #059669;
+  background-color: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+/* Blue styling for improvement suggestion */
+.text-blue-600 {
+  color: #2563eb;
+  background-color: #dbeafe;
+  border: 1px solid #bfdbfe;
+}
+</style>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

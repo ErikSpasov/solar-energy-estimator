@@ -4,8 +4,8 @@ import { estimateEnergy } from "./pvModel.js";
 // ======= DOM helpers =======
 const el = (id) => document.getElementById(id);
 
-const statusText = el("statusText");           // you likely have this line under title
-const metaLine = el("metaLine");               // location + period line
+const statusText = el("statusText");
+const metaLine = el("metaLine");
 
 const annualEl = el("kpiAnnual");
 const avgMonthlyEl = el("kpiMonthlyAvg");
@@ -57,7 +57,7 @@ async function run(cfg) {
 
   renderMeta(cfg);
   renderKPIs(result);
-  renderAdvisory(result);
+  renderAdvisory(result, cfg);  // UPDATED: Now passes both result and cfg
   renderCharts(result);
 
   setStatus("Results loaded.", false);
@@ -99,12 +99,45 @@ function renderKPIs(result) {
   if (avgDailyEl) avgDailyEl.textContent = Number.isFinite(avgDaily) ? `${avgDaily.toFixed(1)}` : "—";
 }
 
-function renderAdvisory(result) {
-  const tilt = result?.advisory?.optimalTiltDeg;
-  const az = result?.advisory?.optimalAzimuthDeg;
+// ============================================================================
+// TASK 2: UPDATED ADVISORY RENDERING
+// ============================================================================
+// Now shows real optimal angles and potential improvement
+// ============================================================================
 
-  if (advisoryTiltEl) advisoryTiltEl.textContent = (tilt ?? "—");
-  if (advisoryAzEl) advisoryAzEl.textContent = (az ?? "—");
+function renderAdvisory(result, cfg) {
+  const optimalTilt = result?.advisory?.optimalTiltDeg;
+  const optimalAzimuth = result?.advisory?.optimalAzimuthDeg;
+  const potentialKWh = result?.advisory?.potentialAnnualKWh;
+  const currentKWh = result?.annualKWh;
+
+  // Display optimal angles
+  if (advisoryTiltEl) advisoryTiltEl.textContent = (optimalTilt ?? "—");
+  if (advisoryAzEl) advisoryAzEl.textContent = (optimalAzimuth ?? "—");
+  
+  // Get user's current configuration
+  const userTilt = Number(cfg.tiltDeg);
+  const userAzimuth = Number(cfg.azimuthDeg);
+  
+  // Check if there's an advisory note element in your HTML
+  const advisoryNoteEl = el("advisoryNote");
+  
+  if (advisoryNoteEl) {
+    // Check if user already has optimal configuration
+    if (optimalTilt === userTilt && optimalAzimuth === userAzimuth) {
+      advisoryNoteEl.textContent = "✓ Your configuration is already optimal!";
+      advisoryNoteEl.className = "text-sm text-emerald-600 font-medium mt-2";
+    } 
+    // Show potential improvement if not optimal
+    else if (potentialKWh && currentKWh && potentialKWh > currentKWh) {
+      const improvementKWh = potentialKWh - currentKWh;
+      const improvementPercent = ((improvementKWh / currentKWh) * 100).toFixed(1);
+      
+      advisoryNoteEl.textContent = 
+        `Potential gain: +${improvementPercent}% (+${Math.round(improvementKWh)} kWh/year)`;
+      advisoryNoteEl.className = "text-sm text-blue-600 font-medium mt-2";
+    }
+  }
 }
 
 function renderCharts(result) {
@@ -172,6 +205,16 @@ function buildCsv(cfg, result) {
   lines.push(`startDate,${cfg.startDate}`);
   lines.push(`endDate,${cfg.endDate}`);
   lines.push("");
+  
+  // Add advisory information
+  if (result.advisory) {
+    lines.push("Advisory");
+    lines.push(`optimalTilt,${result.advisory.optimalTiltDeg}`);
+    lines.push(`optimalAzimuth,${result.advisory.optimalAzimuthDeg}`);
+    lines.push(`potentialAnnual,${result.advisory.potentialAnnualKWh}`);
+    lines.push("");
+  }
+  
   lines.push("date,kWh");
   for (const d of Object.keys(result.dailyKWh).sort()) {
     lines.push(`${d},${result.dailyKWh[d]}`);
