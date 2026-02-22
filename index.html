@@ -14,6 +14,104 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     html, body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+    /* ========================================== */
+    /* TOOLTIP HELP SYSTEM */
+    /* ========================================== */
+    
+    /* Tooltip Icon Styling */
+    .tooltip-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-left: 6px;
+      background-color: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: help;
+      position: relative;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .tooltip-icon:hover {
+      background-color: #2563eb;
+    }
+
+    /* Tooltip Content */
+    .tooltip-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      padding: 12px;
+      background-color: #1f2937;
+      color: white;
+      font-size: 13px;
+      font-weight: normal;
+      line-height: 1.5;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+      text-align: left;
+    }
+
+    /* Tooltip arrow */
+    .tooltip-icon::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #1f2937;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1001;
+    }
+
+    /* Show tooltip on hover */
+    .tooltip-icon:hover::after,
+    .tooltip-icon:hover::before {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Mobile: show tooltip when active class is present */
+    .tooltip-icon.tooltip-active::after,
+    .tooltip-icon.tooltip-active::before {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Responsive: adjust tooltip width on small screens */
+    @media (max-width: 640px) {
+      .tooltip-icon::after {
+        width: 220px;
+        font-size: 12px;
+      }
+      
+      /* On mobile, don't show on hover, only on tap (active class) */
+      .tooltip-icon:hover::after,
+      .tooltip-icon:hover::before {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
   </style>
 </head>
 
@@ -39,7 +137,7 @@
           <div>
             <h2 class="text-base font-semibold">1) Location</h2>
             <p class="text-sm text-slate-500">
-              Use “Locate Me” to populate latitude and longitude.
+              Use "Locate Me" to populate latitude and longitude.
             </p>
           </div>
 
@@ -93,34 +191,30 @@
         </p>
 
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <!-- System Capacity with Tooltip -->
           <div>
-            <label class="block text-sm font-medium text-slate-700" for="systemCapacityKwp">System Capacity (kWp)</label>
+            <label class="block text-sm font-medium text-slate-700" for="systemCapacityKwp">
+              System Capacity (kWp)
+              <span class="tooltip-icon" data-tooltip="The total power rating of your solar panels. Check your installation documents, inverter nameplate, or add up individual panel ratings. Example: 16 panels × 250W = 4 kWp">?</span>
+            </label>
             <input
               id="systemCapacityKwp"
               type="number"
               step="0.1"
-              min="0"
+              min="0.01"
+              max="10000"
               placeholder="e.g. 4.0"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             />
+            <p id="errCapacity" class="mt-1 text-xs text-red-600 hidden"></p>
           </div>
 
+          <!-- Tilt with Tooltip -->
           <div>
-            <label class="block text-sm font-medium text-slate-700" for="panelEfficiency">Panel Efficiency (0–1)</label>
-            <input
-              id="panelEfficiency"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              placeholder="e.g. 0.20"
-              class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-            />
-            <p class="mt-1 text-xs text-slate-500">Example: 20% = 0.20</p>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-700" for="tiltDeg">Tilt (°)</label>
+            <label class="block text-sm font-medium text-slate-700" for="tiltDeg">
+              Tilt (°)
+              <span class="tooltip-icon" data-tooltip="The angle of your panels from horizontal. Flat roof = 0°, Vertical wall = 90°. Measure with a phone app (e.g., 'Angle Meter') or check installation docs. Optimal tilt ≈ your latitude.">?</span>
+            </label>
             <input
               id="tiltDeg"
               type="number"
@@ -130,10 +224,15 @@
               placeholder="e.g. 30"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             />
+            <p id="errTilt" class="mt-1 text-xs text-red-600 hidden"></p>
           </div>
 
+          <!-- Azimuth with Tooltip -->
           <div>
-            <label class="block text-sm font-medium text-slate-700" for="azimuthDeg">Azimuth (°)</label>
+            <label class="block text-sm font-medium text-slate-700" for="azimuthDeg">
+              Azimuth (°)
+              <span class="tooltip-icon" data-tooltip="The compass direction your panels face. Use a compass app on your phone. South = 0°, East = -90°, West = 90°. For best results, panels should face the equator (south in N. hemisphere, north in S. hemisphere).">?</span>
+            </label>
             <input
               id="azimuthDeg"
               type="number"
@@ -143,20 +242,26 @@
               placeholder="e.g. 0 (south), -90 (east), 90 (west)"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             />
+            <p id="errAzimuth" class="mt-1 text-xs text-red-600 hidden"></p>
           </div>
 
+          <!-- Performance Ratio with Tooltip -->
           <div class="sm:col-span-2">
-            <label class="block text-sm font-medium text-slate-700" for="performanceRatio">Performance Ratio (0–1)</label>
+            <label class="block text-sm font-medium text-slate-700" for="performanceRatio">
+              Performance Ratio (0–1)
+              <span class="tooltip-icon" data-tooltip="Accounts for real-world losses (cables, inverter, temperature, dirt). If unsure, use 0.85 (85%). Well-maintained systems: 0.85-0.90. Older/shaded systems: 0.75-0.80. Check your inverter monitoring app for actual PR.">?</span>
+            </label>
             <input
               id="performanceRatio"
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               max="1"
               placeholder="e.g. 0.85"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
             />
             <p class="mt-1 text-xs text-slate-500">Typical range: 0.75–0.90</p>
+            <p id="errPR" class="mt-1 text-xs text-red-600 hidden"></p>
           </div>
         </div>
       </section>
@@ -165,12 +270,41 @@
       <section class="rounded-xl bg-white shadow-sm border p-5 lg:col-span-2">
         <h2 class="text-base font-semibold">3) Date Range</h2>
         <p class="text-sm text-slate-500">
-          Choose the historical period to query from Open-Meteo Archive.
+          Choose a historical period to fetch real weather data. <strong class="text-slate-700">3–5 years is recommended</strong> — it averages out unusually sunny or cloudy years for a more reliable estimate. A single year is faster but may not reflect typical conditions.
         </p>
+
+        <!-- Quick-select presets -->
+        <div class="mt-3 flex flex-wrap gap-2">
+          <span class="text-xs text-slate-500 self-center">Quick select:</span>
+          <button
+            id="btnPreset1yr"
+            type="button"
+            class="rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+          >
+            Last 1 Year
+          </button>
+          <button
+            id="btnPreset3yr"
+            type="button"
+            class="rounded-full border border-emerald-400 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 active:bg-emerald-200 transition-colors"
+          >
+            Last 3 Years ✓ Recommended
+          </button>
+          <button
+            id="btnPreset5yr"
+            type="button"
+            class="rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+          >
+            Last 5 Years
+          </button>
+        </div>
 
         <div class="mt-4 grid gap-4 sm:grid-cols-3">
           <div>
-            <label class="block text-sm font-medium text-slate-700" for="startDate">Start Date</label>
+            <label class="block text-sm font-medium text-slate-700" for="startDate">
+              Start Date
+              <span class="tooltip-icon" data-tooltip="How far back to fetch weather data. More years give a more reliable estimate by averaging out unusually good or bad weather years. Recommended: go back 3–5 years. The Open-Meteo archive goes all the way back to 1940, but recent years are most relevant.">?</span>
+            </label>
             <input
               id="startDate"
               type="date"
@@ -179,7 +313,10 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-slate-700" for="endDate">End Date</label>
+            <label class="block text-sm font-medium text-slate-700" for="endDate">
+              End Date
+              <span class="tooltip-icon" data-tooltip="Should be a recent date — ideally yesterday. The Open-Meteo archive has a short delay (1–5 days), so avoid setting this to today. The quick-select buttons above will set this automatically to the most recent usable date.">?</span>
+            </label>
             <input
               id="endDate"
               type="date"
@@ -201,7 +338,7 @@
 
         <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
           <span class="rounded-full bg-slate-100 px-3 py-1">Required: location + parameters + date range</span>
-          <span class="rounded-full bg-slate-100 px-3 py-1">Next: fetch weather + run PV model</span>
+          <span class="rounded-full bg-slate-100 px-3 py-1">More years = more reliable estimate</span>
         </div>
       </section>
 
@@ -227,5 +364,37 @@
   </main>
 
   <script src="./js/app.js"></script>
+  
+  <!-- Tooltip mobile support script -->
+  <script>
+    // Make tooltips clickable on mobile devices
+    document.addEventListener('DOMContentLoaded', function() {
+      const tooltips = document.querySelectorAll('.tooltip-icon');
+      
+      tooltips.forEach(tooltip => {
+        tooltip.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Toggle active class (for mobile tap)
+          this.classList.toggle('tooltip-active');
+          
+          // Close other tooltips
+          tooltips.forEach(other => {
+            if (other !== this) {
+              other.classList.remove('tooltip-active');
+            }
+          });
+        });
+      });
+      
+      // Close tooltip when clicking outside
+      document.addEventListener('click', function() {
+        tooltips.forEach(tooltip => {
+          tooltip.classList.remove('tooltip-active');
+        });
+      });
+    });
+  </script>
 </body>
 </html>

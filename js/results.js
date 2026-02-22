@@ -16,6 +16,7 @@ const advisoryAzEl = el("advisoryAz");
 
 const btnBack = el("btnBack");
 const btnExportCsv = el("btnExportCsv");
+const btnExportPdf = el("btnExportPdf");
 
 // Chart canvases (must exist in your HTML)
 const monthlyCanvas = el("monthlyChart");
@@ -195,6 +196,10 @@ function wireButtons(cfg, result) {
       downloadTextFile(csv, "solar-estimate.csv", "text/csv");
     });
   }
+
+  if (btnExportPdf) {
+    btnExportPdf.addEventListener("click", () => exportPdf());
+  }
 }
 
 function buildCsv(cfg, result) {
@@ -232,4 +237,54 @@ function downloadTextFile(content, filename, mime) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+// ======= PDF Export =======
+async function exportPdf() {
+  if (!window.html2canvas || !window.jspdf) {
+    alert("PDF libraries not loaded yet. Please wait a moment and try again.");
+    return;
+  }
+
+  if (btnExportPdf) { btnExportPdf.disabled = true; btnExportPdf.textContent = "Generating…"; }
+
+  try {
+    const { jsPDF } = window.jspdf;
+
+    // Capture the full results main area
+    const mainEl = document.querySelector("main");
+    const canvas = await html2canvas(mainEl, { scale: 2, useCORS: true, logging: false });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    const pageW = pdf.internal.pageSize.getWidth();   // 210 mm
+    const pageH = pdf.internal.pageSize.getHeight();  // 297 mm
+
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    // Stamp header on first page
+    pdf.setFontSize(10);
+    pdf.setTextColor(100);
+    pdf.text(`Solar Energy Estimator — exported ${new Date().toLocaleDateString()}`, pageW / 2, 6, { align: "center" });
+
+    // Add image (split across pages if content is taller than one page)
+    let heightLeft = imgH;
+    let yPos = 10; // leave room for header text
+
+    pdf.addImage(imgData, "PNG", 0, yPos, imgW, imgH);
+    heightLeft -= (pageH - yPos);
+
+    while (heightLeft > 0) {
+      yPos = -(imgH - heightLeft);
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, yPos, imgW, imgH);
+      heightLeft -= pageH;
+    }
+
+    pdf.save("solar-estimate.pdf");
+  } finally {
+    if (btnExportPdf) { btnExportPdf.disabled = false; btnExportPdf.textContent = "Export PDF"; }
+  }
 }

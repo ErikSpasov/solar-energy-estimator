@@ -32,6 +32,9 @@
         <button id="btnExportCsv" class="rounded-lg bg-slate-900 px-4 py-2 text-white text-sm font-semibold hover:bg-slate-800">
           Export CSV
         </button>
+        <button id="btnExportPdf" class="rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          Export PDF
+        </button>
       </div>
     </div>
   </header>
@@ -176,6 +179,8 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module" src="./js/results.js"></script>
 </body>
 </html>

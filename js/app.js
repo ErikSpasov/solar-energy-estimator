@@ -12,7 +12,7 @@ const longitude = el("longitude");
 const systemCapacityKwp = el("systemCapacityKwp");
 const tiltDeg = el("tiltDeg");
 const azimuthDeg = el("azimuthDeg");
-const panelEfficiency = el("panelEfficiency");
+// REMOVED: const panelEfficiency = el("panelEfficiency");
 const performanceRatio = el("performanceRatio");
 
 const startDate = el("startDate");
@@ -28,7 +28,7 @@ const state = {
     systemCapacityKwp: null,
     tiltDeg: null,
     azimuthDeg: null,
-    panelEfficiency: null,
+    // REMOVED: panelEfficiency: null,
     performanceRatio: null,
     startDate: null,
     endDate: null
@@ -66,7 +66,7 @@ function isValidConfig(cfg) {
     cfg.systemCapacityKwp,
     cfg.tiltDeg,
     cfg.azimuthDeg,
-    cfg.panelEfficiency,
+    // REMOVED: cfg.panelEfficiency,
     cfg.performanceRatio,
     cfg.startDate,
     cfg.endDate
@@ -82,7 +82,7 @@ function isValidConfig(cfg) {
   if (cfg.tiltDeg < 0 || cfg.tiltDeg > 90) return false;
   if (cfg.azimuthDeg < -180 || cfg.azimuthDeg > 180) return false;
 
-  if (cfg.panelEfficiency <= 0 || cfg.panelEfficiency > 1) return false;
+  // REMOVED: if (cfg.panelEfficiency <= 0 || cfg.panelEfficiency > 1) return false;
   if (cfg.performanceRatio <= 0 || cfg.performanceRatio > 1) return false;
 
   // date order
@@ -100,7 +100,7 @@ function syncStateFromInputs() {
   cfg.systemCapacityKwp = toNumber(systemCapacityKwp.value);
   cfg.tiltDeg = toNumber(tiltDeg.value);
   cfg.azimuthDeg = toNumber(azimuthDeg.value);
-  cfg.panelEfficiency = toNumber(panelEfficiency.value);
+  // REMOVED: cfg.panelEfficiency = toNumber(panelEfficiency.value);
   cfg.performanceRatio = toNumber(performanceRatio.value);
 
   cfg.startDate = startDate.value || null;
@@ -118,11 +118,19 @@ function clearAll() {
   systemCapacityKwp.value = "";
   tiltDeg.value = "";
   azimuthDeg.value = "";
-  panelEfficiency.value = "";
+  // REMOVED: panelEfficiency.value = "";
   performanceRatio.value = "";
 
   startDate.value = "";
   endDate.value = "";
+
+  // Reset validation error states
+  [
+    [systemCapacityKwp, "errCapacity"],
+    [tiltDeg,           "errTilt"],
+    [azimuthDeg,        "errAzimuth"],
+    [performanceRatio,  "errPR"],
+  ].forEach(([input, errId]) => clearFieldError(input, el(errId)));
 
   hideBanner();
   syncStateFromInputs();
@@ -190,13 +198,92 @@ function calculateEnergy() {
   // Later: window.location.href = "./results.html";
 }
 
+// ======= Input Validation =======
+
+// Rules for each validated field
+const FIELD_RULES = {
+  systemCapacityKwp: { min: 0.01, max: 10000, unit: " kWp", noNeg: true,  noDecimal: false, errId: "errCapacity" },
+  tiltDeg:           { min: 0,    max: 90,    unit: "°",    noNeg: true,  noDecimal: true,  errId: "errTilt"     },
+  azimuthDeg:        { min: -180, max: 180,   unit: "°",    noNeg: false, noDecimal: true,  errId: "errAzimuth"  },
+  performanceRatio:  { min: 0.01, max: 1,     unit: "",     noNeg: true,  noDecimal: false, errId: "errPR"       },
+};
+
+function showFieldError(input, errEl, msg) {
+  if (errEl) { errEl.textContent = msg; errEl.classList.remove("hidden"); }
+  input.classList.add("border-red-400");
+}
+
+function clearFieldError(input, errEl) {
+  if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
+  input.classList.remove("border-red-400");
+}
+
+function setupFieldValidation(input, rules) {
+  const errEl = el(rules.errId);
+
+  // Block characters that can never be valid for this field
+  input.addEventListener("keydown", (e) => {
+    // Block scientific notation ('e'/'E') and explicit '+' in all number fields
+    if (e.key === "e" || e.key === "E" || e.key === "+") { e.preventDefault(); return; }
+    // Block '-' for fields that only accept positive values
+    if (rules.noNeg && e.key === "-") { e.preventDefault(); return; }
+    // Block '.' for integer-only fields
+    if (rules.noDecimal && e.key === ".") { e.preventDefault(); return; }
+  });
+
+  // Show live error while typing if value is out of range
+  input.addEventListener("input", () => {
+    const val = parseFloat(input.value);
+    if (input.value === "" || isNaN(val)) { clearFieldError(input, errEl); return; }
+
+    if (val < rules.min || val > rules.max) {
+      showFieldError(input, errEl, `Must be between ${rules.min}${rules.unit} and ${rules.max}${rules.unit}.`);
+    } else {
+      clearFieldError(input, errEl);
+    }
+  });
+}
+
+// Attach validation to all System Parameter fields
+setupFieldValidation(systemCapacityKwp, FIELD_RULES.systemCapacityKwp);
+setupFieldValidation(tiltDeg,           FIELD_RULES.tiltDeg);
+setupFieldValidation(azimuthDeg,        FIELD_RULES.azimuthDeg);
+setupFieldValidation(performanceRatio,  FIELD_RULES.performanceRatio);
+
+// ======= Date Presets =======
+function setDatePreset(years) {
+  // End date = 2 days ago (Open-Meteo archive has a short delay)
+  const end = new Date();
+  end.setDate(end.getDate() - 2);
+
+  const start = new Date(end);
+  start.setFullYear(start.getFullYear() - years);
+
+  // Format as YYYY-MM-DD
+  const fmt = (d) => d.toISOString().slice(0, 10);
+  startDate.value = fmt(start);
+  endDate.value = fmt(end);
+
+  syncStateFromInputs();
+}
+
 // ======= Wire up events =======
 btnLocate.addEventListener("click", locateMe);
 btnCalculate.addEventListener("click", calculateEnergy);
 btnClear.addEventListener("click", clearAll);
 
+el("btnPreset1yr").addEventListener("click", () => setDatePreset(1));
+el("btnPreset3yr").addEventListener("click", () => setDatePreset(3));
+el("btnPreset5yr").addEventListener("click", () => setDatePreset(5));
+
+// Prevent manual keyboard/paste input on date fields — calendar picker or quick-select only
+[startDate, endDate].forEach((input) => {
+  input.addEventListener("keydown", (e) => e.preventDefault());
+  input.addEventListener("paste",   (e) => e.preventDefault());
+});
+
 [
-  systemCapacityKwp, tiltDeg, azimuthDeg, panelEfficiency, performanceRatio,
+  systemCapacityKwp, tiltDeg, azimuthDeg, /* REMOVED: panelEfficiency, */ performanceRatio,
   startDate, endDate
 ].forEach((input) => input.addEventListener("input", syncStateFromInputs));
 
