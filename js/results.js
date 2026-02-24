@@ -29,13 +29,13 @@ let dailyChart = null;
 const cfgRaw = localStorage.getItem("userConfiguration");
 if (!cfgRaw) {
   setStatus("Missing data. Please run an estimation first.", true);
-  wireButtons(null, null);
+  wireButtons(null);
 } else {
   const cfg = JSON.parse(cfgRaw);
   run(cfg).catch((err) => {
     console.error(err);
     setStatus(`Open-Meteo error: ${err.message}`, true);
-    wireButtons(cfg, null);
+    wireButtons(cfg);
   });
 }
 
@@ -62,7 +62,7 @@ async function run(cfg) {
   renderCharts(result);
 
   setStatus("Results loaded.", false);
-  wireButtons(cfg, result);
+  wireButtons(cfg);
 }
 
 // ======= Rendering =======
@@ -112,10 +112,16 @@ function renderAdvisory(result, cfg) {
   const potentialKWh = result?.advisory?.potentialAnnualKWh;
   const currentKWh = result?.annualKWh;
 
-  // Display optimal angles
+  // Display current config values (left side of arrow)
+  const currentTiltEl = el("currentTilt");
+  const currentAzEl   = el("currentAz");
+  if (currentTiltEl) currentTiltEl.textContent = cfg.tiltDeg ?? "—";
+  if (currentAzEl)   currentAzEl.textContent   = cfg.azimuthDeg ?? "—";
+
+  // Display advised (optimal) angles (right side of arrow)
   if (advisoryTiltEl) advisoryTiltEl.textContent = (optimalTilt ?? "—");
-  if (advisoryAzEl) advisoryAzEl.textContent = (optimalAzimuth ?? "—");
-  
+  if (advisoryAzEl)   advisoryAzEl.textContent   = (optimalAzimuth ?? "—");
+
   // Get user's current configuration
   const userTilt = Number(cfg.tiltDeg);
   const userAzimuth = Number(cfg.azimuthDeg);
@@ -142,33 +148,103 @@ function renderAdvisory(result, cfg) {
 }
 
 function renderCharts(result) {
-  // MONTHLY chart
+  // ---- Monthly data ----
   const monthKeys = Object.keys(result.monthlyKWh).sort(); // "YYYY-MM"
   const monthVals = monthKeys.map((k) => result.monthlyKWh[k]);
 
-  // DAILY chart: show last 30 days only
+  // "YYYY-MM" → "Jan '24"
+  const monthLabels = monthKeys.map((m) => {
+    const [y, mo] = m.split("-");
+    return new Date(+y, +mo - 1, 1).toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+  });
+
+  // ---- Daily data (last 30 days) ----
   const dayKeysAll = Object.keys(result.dailyKWh).sort(); // "YYYY-MM-DD"
   const dayKeys = dayKeysAll.slice(Math.max(0, dayKeysAll.length - 30));
   const dayVals = dayKeys.map((k) => result.dailyKWh[k]);
 
-  // Chart.js must already be loaded in results.html
+  // "YYYY-MM-DD" → "15 Jan"
+  const dayLabels = dayKeys.map((d) =>
+    new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+  );
+
+  // ---- Subtitles ----
+  const fmtMonth = (m) => {
+    const [y, mo] = m.split("-");
+    return new Date(+y, +mo - 1, 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  };
+  const fmtDay = (d) =>
+    new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  const monthlySub = el("monthlyChartSubtitle");
+  if (monthlySub && monthKeys.length > 0)
+    monthlySub.textContent = `${monthKeys.length} months: ${fmtMonth(monthKeys[0])} – ${fmtMonth(monthKeys[monthKeys.length - 1])}`;
+
+  const dailySub = el("dailyChartSubtitle");
+  if (dailySub && dayKeys.length > 0)
+    dailySub.textContent = `${fmtDay(dayKeys[0])} – ${fmtDay(dayKeys[dayKeys.length - 1])}`;
+
+  // ---- Shared Chart.js options ----
+  const sharedOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.parsed.y.toFixed(1)} kWh`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: "kWh", color: "#94a3b8", font: { size: 11 } },
+        grid: { color: "#f1f5f9" },
+        ticks: { color: "#64748b", font: { size: 11 } }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: "#64748b", font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 18 }
+      }
+    }
+  };
+
   if (monthlyChart) monthlyChart.destroy();
   if (dailyChart) dailyChart.destroy();
 
   monthlyChart = new Chart(monthlyCanvas, {
     type: "bar",
     data: {
-      labels: monthKeys.map((m) => m.slice(5)), // "MM" for compact display
-      datasets: [{ label: "Energy (kWh)", data: monthVals }]
-    }
+      labels: monthLabels,
+      datasets: [{
+        label: "Monthly Energy",
+        data: monthVals,
+        backgroundColor: "rgba(16, 185, 129, 0.75)",
+        borderColor: "rgb(16, 185, 129)",
+        borderWidth: 1,
+        borderRadius: 3,
+      }]
+    },
+    options: sharedOptions
   });
 
   dailyChart = new Chart(dailyCanvas, {
     type: "line",
     data: {
-      labels: dayKeys.map((d, i) => `Day ${i + 1}`),
-      datasets: [{ label: "Energy (kWh)", data: dayVals }]
-    }
+      labels: dayLabels,
+      datasets: [{
+        label: "Daily Energy",
+        data: dayVals,
+        borderColor: "rgb(59, 130, 246)",
+        backgroundColor: "rgba(59, 130, 246, 0.08)",
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: sharedOptions
   });
 }
 
@@ -179,7 +255,7 @@ function setStatus(msg, isError) {
 }
 
 // ======= Buttons =======
-function wireButtons(cfg, result) {
+function wireButtons(cfg) {
   if (btnBack) {
     btnBack.addEventListener("click", () => {
       window.location.href = "./index.html";

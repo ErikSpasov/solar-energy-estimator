@@ -132,6 +132,9 @@ function clearAll() {
     [performanceRatio,  "errPR"],
   ].forEach(([input, errId]) => clearFieldError(input, el(errId)));
 
+  // Re-apply date constraints (clears stale min/max from previous selection)
+  applyDateConstraints();
+
   hideBanner();
   syncStateFromInputs();
 }
@@ -250,20 +253,36 @@ setupFieldValidation(tiltDeg,           FIELD_RULES.tiltDeg);
 setupFieldValidation(azimuthDeg,        FIELD_RULES.azimuthDeg);
 setupFieldValidation(performanceRatio,  FIELD_RULES.performanceRatio);
 
+// ======= Date Constraints =======
+function getMaxDate() {
+  const d = new Date();
+  d.setDate(d.getDate() - 2);
+  return d.toISOString().slice(0, 10);
+}
+
+function applyDateConstraints() {
+  const maxDate = getMaxDate();
+  // End date can never exceed today − 2 days
+  endDate.max = maxDate;
+  // Start date can't be after the chosen end date (or max date if none chosen)
+  startDate.max = endDate.value || maxDate;
+  // End date can't be before the chosen start date
+  endDate.min = startDate.value || "";
+}
+
 // ======= Date Presets =======
 function setDatePreset(years) {
-  // End date = 2 days ago (Open-Meteo archive has a short delay)
   const end = new Date();
   end.setDate(end.getDate() - 2);
 
   const start = new Date(end);
   start.setFullYear(start.getFullYear() - years);
 
-  // Format as YYYY-MM-DD
   const fmt = (d) => d.toISOString().slice(0, 10);
   startDate.value = fmt(start);
   endDate.value = fmt(end);
 
+  applyDateConstraints();
   syncStateFromInputs();
 }
 
@@ -281,6 +300,13 @@ el("btnPreset5yr").addEventListener("click", () => setDatePreset(5));
   input.addEventListener("keydown", (e) => e.preventDefault());
   input.addEventListener("paste",   (e) => e.preventDefault());
 });
+
+// Keep date constraints in sync whenever the user picks a date from the calendar
+startDate.addEventListener("change", applyDateConstraints);
+endDate.addEventListener("change", applyDateConstraints);
+
+// Apply constraints immediately on page load
+applyDateConstraints();
 
 [
   systemCapacityKwp, tiltDeg, azimuthDeg, /* REMOVED: panelEfficiency, */ performanceRatio,

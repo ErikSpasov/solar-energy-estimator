@@ -62,14 +62,15 @@
     <section class="mt-6 grid gap-6 lg:grid-cols-2">
       <div class="rounded-xl bg-white shadow-sm border p-5">
         <h2 class="text-base font-semibold">Monthly Energy (kWh)</h2>
+        <p id="monthlyChartSubtitle" class="text-sm text-slate-500 mt-1"></p>
         <div class="mt-4">
           <canvas id="monthlyChart" height="160"></canvas>
         </div>
       </div>
 
       <div class="rounded-xl bg-white shadow-sm border p-5">
-        <h2 class="text-base font-semibold">Daily Energy (kWh)</h2>
-        <p class="text-sm text-slate-500 mt-1">Mock shows last 30 days.</p>
+        <h2 class="text-base font-semibold">Daily Energy — Last 30 Days (kWh)</h2>
+        <p id="dailyChartSubtitle" class="text-sm text-slate-500 mt-1"></p>
         <div class="mt-4">
           <canvas id="dailyChart" height="160"></canvas>
         </div>
@@ -81,29 +82,36 @@
   <h3>Advisory</h3>
   
   <div class="advisory-content">
-    <!-- Optimal Tilt Display -->
+    <!-- Column headers -->
+    <div class="advisory-header">
+      <span></span>
+      <span class="advisory-col-label">Your config</span>
+      <span></span>
+      <span class="advisory-col-label">Advised</span>
+    </div>
+
+    <!-- Tilt row -->
     <div class="advisory-item">
-      <span class="label">Optimal Tilt:</span>
+      <span class="label">Tilt</span>
       <span class="value-container">
+        <span id="currentTilt" class="value">—</span>°
+        <span class="advisory-arrow">→</span>
         <span id="advisoryTilt" class="value">—</span>°
       </span>
     </div>
-    
-    <!-- Optimal Azimuth Display -->
+
+    <!-- Azimuth row -->
     <div class="advisory-item">
-      <span class="label">Optimal Azimuth:</span>
+      <span class="label">Azimuth</span>
       <span class="value-container">
+        <span id="currentAz" class="value">—</span>°
+        <span class="advisory-arrow">→</span>
         <span id="advisoryAz" class="value">—</span>°
       </span>
     </div>
-    
-    <!-- Advisory Note (shows if config is optimal or shows improvement) -->
-    <div id="advisoryNote" class="advisory-note">
-      <!-- This will be populated by JavaScript with one of:
-           - "✓ Your configuration is already optimal!"
-           - "Potential gain: +12% (+450 kWh/year)"
-      -->
-    </div>
+
+    <!-- Advisory Note -->
+    <div id="advisoryNote" class="advisory-note"></div>
   </div>
 </div>
 
@@ -132,12 +140,30 @@
   color: #374151;
 }
 
-/* NEW: Container for value + degree symbol */
+/* Column header row */
+.advisory-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 0.25rem;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.advisory-col-label {
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Container for current → advised values */
 .advisory-item .value-container {
   display: flex;
-  align-items: baseline;  /* Aligns degree symbol with number baseline */
-  justify-content: flex-end;  /* Right-aligns content */
-  min-width: 100px;  /* Ensures consistent spacing */
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0;
   font-weight: 600;
   color: #1f2937;
 }
@@ -145,8 +171,14 @@
 .advisory-item .value {
   display: inline-block;
   text-align: right;
-  min-width: 50px;  /* Fixed width for numbers */
-  font-variant-numeric: tabular-nums;  /* Monospaced numbers */
+  min-width: 42px;
+  font-variant-numeric: tabular-nums;
+}
+
+.advisory-arrow {
+  margin: 0 6px;
+  color: #9ca3af;
+  font-weight: normal;
 }
 
 .advisory-note {
