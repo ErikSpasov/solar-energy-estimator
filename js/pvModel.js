@@ -151,7 +151,9 @@ function calculateEnergyWithAngles(dataset, cfg, tilt, azimuth) {
 
   // Aggregate into monthly and annual totals
   const monthlyKWh = aggregateMonthly(dailyKWh);
-  const annualKWh = round2(Object.values(monthlyKWh).reduce((a, b) => a + b, 0));
+  const totalKWh = Object.values(monthlyKWh).reduce((a, b) => a + b, 0);
+  const numYears = new Set(Object.keys(dailyKWh).map(d => d.slice(0, 4))).size || 1;
+  const annualKWh = round2(totalKWh / numYears);
   const avgDaily = round2(avg(Object.values(dailyKWh)));
   const avgMonthly = round2(avg(Object.values(monthlyKWh)));
 

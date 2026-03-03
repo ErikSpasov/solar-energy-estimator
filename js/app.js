@@ -4,7 +4,6 @@ const el = (id) => document.getElementById(id);
 const statusBanner = el("statusBanner");
 const btnLocate = el("btnLocate");
 const btnCalculate = el("btnCalculate");
-const btnClear = el("btnClear");
 
 const latitude = el("latitude");
 const longitude = el("longitude");
@@ -18,7 +17,6 @@ const performanceRatio = el("performanceRatio");
 const startDate = el("startDate");
 const endDate = el("endDate");
 
-const configPreview = el("configPreview");
 
 // ======= State =======
 const state = {
@@ -106,37 +104,7 @@ function syncStateFromInputs() {
   cfg.startDate = startDate.value || null;
   cfg.endDate = endDate.value || null;
 
-  configPreview.textContent = JSON.stringify(state.userConfiguration, null, 2);
-
   btnCalculate.disabled = !isValidConfig(cfg);
-}
-
-function clearAll() {
-  latitude.value = "";
-  longitude.value = "";
-
-  systemCapacityKwp.value = "";
-  tiltDeg.value = "";
-  azimuthDeg.value = "";
-  // REMOVED: panelEfficiency.value = "";
-  performanceRatio.value = "";
-
-  startDate.value = "";
-  endDate.value = "";
-
-  // Reset validation error states
-  [
-    [systemCapacityKwp, "errCapacity"],
-    [tiltDeg,           "errTilt"],
-    [azimuthDeg,        "errAzimuth"],
-    [performanceRatio,  "errPR"],
-  ].forEach(([input, errId]) => clearFieldError(input, el(errId)));
-
-  // Re-apply date constraints (clears stale min/max from previous selection)
-  applyDateConstraints();
-
-  hideBanner();
-  syncStateFromInputs();
 }
 
 // ======= Locate Me =======
@@ -205,10 +173,10 @@ function calculateEnergy() {
 
 // Rules for each validated field
 const FIELD_RULES = {
-  systemCapacityKwp: { min: 0.01, max: 10000, unit: " kWp", noNeg: true,  noDecimal: false, errId: "errCapacity" },
-  tiltDeg:           { min: 0,    max: 90,    unit: "°",    noNeg: true,  noDecimal: true,  errId: "errTilt"     },
-  azimuthDeg:        { min: -180, max: 180,   unit: "°",    noNeg: false, noDecimal: true,  errId: "errAzimuth"  },
-  performanceRatio:  { min: 0.01, max: 1,     unit: "",     noNeg: true,  noDecimal: false, errId: "errPR"       },
+  systemCapacityKwp: { min: 0.01, max: 10000, unit: " kWp", noNeg: true,  noDecimal: false, maxDecimals: null, errId: "errCapacity" },
+  tiltDeg:           { min: 0,    max: 90,    unit: "°",    noNeg: true,  noDecimal: true,  maxDecimals: null, errId: "errTilt"     },
+  azimuthDeg:        { min: -180, max: 180,   unit: "°",    noNeg: false, noDecimal: true,  maxDecimals: null, errId: "errAzimuth"  },
+  performanceRatio:  { min: 0.01, max: 1,     unit: "",     noNeg: true,  noDecimal: false, maxDecimals: 2,    errId: "errPR"       },
 };
 
 function showFieldError(input, errEl, msg) {
@@ -236,8 +204,18 @@ function setupFieldValidation(input, rules) {
 
   // Show live error while typing if value is out of range
   input.addEventListener("input", () => {
+    // Truncate to maxDecimals if exceeded (e.g. 0.8599 → 0.85)
+    if (rules.maxDecimals != null) {
+      const dotIdx = input.value.indexOf(".");
+      if (dotIdx !== -1 && input.value.length - dotIdx - 1 > rules.maxDecimals) {
+        input.value = parseFloat(input.value).toFixed(rules.maxDecimals);
+      }
+    }
+
+    if (input.value === "") { clearFieldError(input, errEl); return; }
+
     const val = parseFloat(input.value);
-    if (input.value === "" || isNaN(val)) { clearFieldError(input, errEl); return; }
+    if (isNaN(val)) { showFieldError(input, errEl, "Enter a valid number."); return; }
 
     if (val < rules.min || val > rules.max) {
       showFieldError(input, errEl, `Must be between ${rules.min}${rules.unit} and ${rules.max}${rules.unit}.`);
@@ -289,7 +267,6 @@ function setDatePreset(years) {
 // ======= Wire up events =======
 btnLocate.addEventListener("click", locateMe);
 btnCalculate.addEventListener("click", calculateEnergy);
-btnClear.addEventListener("click", clearAll);
 
 el("btnPreset1yr").addEventListener("click", () => setDatePreset(1));
 el("btnPreset3yr").addEventListener("click", () => setDatePreset(3));
@@ -313,5 +290,51 @@ applyDateConstraints();
   startDate, endDate
 ].forEach((input) => input.addEventListener("input", syncStateFromInputs));
 
-// Initial render
-syncStateFromInputs();
+// ======= Restore / Clear =======
+function restoreConfigFromStorage() {
+  const saved = localStorage.getItem("userConfiguration");
+  if (!saved) { syncStateFromInputs(); return; }
+
+  let cfg;
+  try { cfg = JSON.parse(saved); } catch { syncStateFromInputs(); return; }
+
+  if (cfg.latitude        != null) latitude.value           = cfg.latitude;
+  if (cfg.longitude       != null) longitude.value          = cfg.longitude;
+  if (cfg.systemCapacityKwp != null) systemCapacityKwp.value = cfg.systemCapacityKwp;
+  if (cfg.tiltDeg         != null) tiltDeg.value            = cfg.tiltDeg;
+  if (cfg.azimuthDeg      != null) azimuthDeg.value         = cfg.azimuthDeg;
+  if (cfg.performanceRatio != null) performanceRatio.value  = cfg.performanceRatio;
+  if (cfg.startDate)               startDate.value          = cfg.startDate;
+  if (cfg.endDate)                 endDate.value            = cfg.endDate;
+
+  applyDateConstraints();
+  syncStateFromInputs();
+}
+
+function clearAll() {
+  latitude.value           = "";
+  longitude.value          = "";
+  systemCapacityKwp.value  = "";
+  tiltDeg.value            = "";
+  azimuthDeg.value         = "";
+  performanceRatio.value   = "";
+  startDate.value          = "";
+  endDate.value            = "";
+
+  [
+    [systemCapacityKwp, "errCapacity"],
+    [tiltDeg,           "errTilt"],
+    [azimuthDeg,        "errAzimuth"],
+    [performanceRatio,  "errPR"],
+  ].forEach(([input, errId]) => clearFieldError(input, el(errId)));
+
+  localStorage.removeItem("userConfiguration");
+  applyDateConstraints();
+  hideBanner();
+  syncStateFromInputs();
+}
+
+el("btnClear").addEventListener("click", clearAll);
+
+// Restore saved config (if returning from results page), otherwise just sync
+restoreConfigFromStorage();
