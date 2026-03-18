@@ -1,3 +1,5 @@
+import { toNumber, isValidConfig } from './validator.js';
+
 // ======= DOM =======
 const el = (id) => document.getElementById(id);
 
@@ -50,44 +52,6 @@ function hideBanner() {
   statusBanner.classList.add("hidden");
 }
 
-function toNumber(value) {
-  if (value === "" || value === null || value === undefined) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function isValidConfig(cfg) {
-  // Mandatory: location, system params, and date range
-  const required = [
-    cfg.latitude,
-    cfg.longitude,
-    cfg.systemCapacityKwp,
-    cfg.tiltDeg,
-    cfg.azimuthDeg,
-    // REMOVED: cfg.panelEfficiency,
-    cfg.performanceRatio,
-    cfg.startDate,
-    cfg.endDate
-  ];
-
-  if (required.some((x) => x === null || x === "")) return false;
-
-  // bounds sanity
-  if (cfg.latitude < -90 || cfg.latitude > 90) return false;
-  if (cfg.longitude < -180 || cfg.longitude > 180) return false;
-
-  if (cfg.systemCapacityKwp <= 0) return false;
-  if (cfg.tiltDeg < 0 || cfg.tiltDeg > 90) return false;
-  if (cfg.azimuthDeg < -180 || cfg.azimuthDeg > 180) return false;
-
-  // REMOVED: if (cfg.panelEfficiency <= 0 || cfg.panelEfficiency > 1) return false;
-  if (cfg.performanceRatio <= 0 || cfg.performanceRatio > 1) return false;
-
-  // date order
-  if (cfg.startDate > cfg.endDate) return false;
-
-  return true;
-}
 
 function syncStateFromInputs() {
   const cfg = state.userConfiguration;
@@ -105,6 +69,29 @@ function syncStateFromInputs() {
   cfg.endDate = endDate.value || null;
 
   btnCalculate.disabled = !isValidConfig(cfg);
+}
+
+// ======= Map =======
+let _map = null;
+let _marker = null;
+
+function updateMap(lat, lon) {
+  const container = el("mapContainer");
+  container.classList.remove("hidden");
+
+  if (!_map) {
+    // Leaflet needs the container visible before init
+    _map = L.map("locationMap").setView([lat, lon], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+      maxZoom: 19
+    }).addTo(_map);
+    _marker = L.marker([lat, lon]).addTo(_map);
+    _map.invalidateSize();
+  } else {
+    _map.setView([lat, lon], 12);
+    _marker.setLatLng([lat, lon]);
+  }
 }
 
 // ======= Locate Me =======
@@ -126,6 +113,10 @@ async function locateMe() {
 
       latitude.value = lat.toFixed(6);
       longitude.value = lon.toFixed(6);
+
+      clearFieldError(latitude, el("errLatitude"));
+      clearFieldError(longitude, el("errLongitude"));
+      updateMap(lat, lon);
 
       showBanner("ok", "Location retrieved successfully.");
       btnLocate.disabled = false;
@@ -173,6 +164,8 @@ function calculateEnergy() {
 
 // Rules for each validated field
 const FIELD_RULES = {
+  latitude:          { min: -90,   max: 90,    unit: "°",    noNeg: false, noDecimal: false, maxDecimals: 6,    errId: "errLatitude" },
+  longitude:         { min: -180,  max: 180,   unit: "°",    noNeg: false, noDecimal: false, maxDecimals: 6,    errId: "errLongitude" },
   systemCapacityKwp: { min: 0.01, max: 10000, unit: " kWp", noNeg: true,  noDecimal: false, maxDecimals: null, errId: "errCapacity" },
   tiltDeg:           { min: 0,    max: 90,    unit: "°",    noNeg: true,  noDecimal: true,  maxDecimals: null, errId: "errTilt"     },
   azimuthDeg:        { min: -180, max: 180,   unit: "°",    noNeg: false, noDecimal: true,  maxDecimals: null, errId: "errAzimuth"  },
@@ -224,6 +217,24 @@ function setupFieldValidation(input, rules) {
     }
   });
 }
+
+// Attach validation to location fields (manual input)
+setupFieldValidation(latitude,  FIELD_RULES.latitude);
+setupFieldValidation(longitude, FIELD_RULES.longitude);
+
+// Update map when user manually types valid coordinates
+function tryUpdateMapFromInputs() {
+  const lat = toNumber(latitude.value);
+  const lon = toNumber(longitude.value);
+  if (lat !== null && lon !== null &&
+      lat >= -90 && lat <= 90 &&
+      lon >= -180 && lon <= 180) {
+    updateMap(lat, lon);
+  }
+}
+
+latitude.addEventListener("input",  () => { syncStateFromInputs(); tryUpdateMapFromInputs(); });
+longitude.addEventListener("input", () => { syncStateFromInputs(); tryUpdateMapFromInputs(); });
 
 // Attach validation to all System Parameter fields
 setupFieldValidation(systemCapacityKwp, FIELD_RULES.systemCapacityKwp);
@@ -309,6 +320,7 @@ function restoreConfigFromStorage() {
 
   applyDateConstraints();
   syncStateFromInputs();
+  tryUpdateMapFromInputs();
 }
 
 function clearAll() {

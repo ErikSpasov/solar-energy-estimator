@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1773863015636" clover="3.2.0">
+  <project timestamp="1773863015636" name="All files">
+    <metrics statements="143" coveredstatements="142" conditionals="100" coveredconditionals="86" methods="24" coveredmethods="23" elements="267" coveredelements="251" complexity="0" loc="143" ncloc="143" packages="1" files="3" classes="3"/>
+    <file name="openMeteoArchiveClient.js" path="C:\Users\enjoy\OneDrive\Работен плот\FINAL YEAR PROJECT\solar-estimator-app\js\openMeteoArchiveClient.js">
+      <metrics statements="17" coveredstatements="16" conditionals="19" coveredconditionals="14" methods="3" coveredmethods="2"/>
+      <line num="4" count="8" type="stmt"/>
+      <line num="10" count="8" type="stmt"/>
+      <line num="17" count="8" type="stmt"/>
+      <line num="19" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="24" count="7" type="stmt"/>
+      <line num="27" count="7" type="cond" truecount="4" falsecount="0"/>
+      <line num="28" count="1" type="stmt"/>
+      <line num="31" count="6" type="stmt"/>
+      <line num="32" count="6" type="stmt"/>
+      <line num="33" count="6" type="stmt"/>
+      <line num="34" count="6" type="stmt"/>
+      <line num="36" count="6" type="cond" truecount="4" falsecount="1"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="41" count="18" type="stmt"/>
+      <line num="48" count="6" type="stmt"/>
+    </file>
+    <file name="pvModel.js" path="C:\Users\enjoy\OneDrive\Работен плот\FINAL YEAR PROJECT\solar-estimator-app\js\pvModel.js">
+      <metrics statements="113" coveredstatements="113" conditionals="46" coveredconditionals="38" methods="18" coveredmethods="18"/>
+      <line num="8" count="2" type="stmt"/>
+      <line num="9" count="2" type="stmt"/>
+      <line num="10" count="2" type="stmt"/>
+      <line num="14" count="2" type="stmt"/>
+      <line num="15" count="2" type="stmt"/>
+      <line num="16" count="2" type="stmt"/>
+      <line num="17" count="2" type="stmt"/>
+      <line num="30" count="7" type="stmt"/>
+      <line num="38" count="7" type="stmt"/>
+      <line num="41" count="7" type="stmt"/>
+      <line num="69" count="7" type="stmt"/>
+      <line num="72" count="7" type="stmt"/>
+      <line num="75" count="7" type="stmt"/>
+      <line num="77" count="7" type="stmt"/>
+      <line num="78" count="7" type="stmt"/>
+      <line num="79" count="7" type="stmt"/>
+      <line num="82" count="7" type="stmt"/>
+      <line num="83" count="84" type="stmt"/>
+      <line num="86" count="924" type="stmt"/>
+      <line num="89" count="924" type="cond" truecount="2" falsecount="0"/>
+      <line num="90" count="48" type="stmt"/>
+      <line num="91" count="48" type="stmt"/>
+      <line num="92" count="48" type="stmt"/>
+      <line num="98" count="7" type="stmt"/>
+      <line num="118" count="931" type="stmt"/>
+      <line num="119" count="931" type="stmt"/>
+      <line num="122" count="931" type="stmt"/>
+      <line num="125" count="2793" type="cond" truecount="2" falsecount="0"/>
+      <line num="130" count="2793" type="stmt"/>
+      <line num="136" count="2793" type="stmt"/>
+      <line num="137" count="2793" type="stmt"/>
+      <line num="138" count="2793" type="stmt"/>
+      <line num="139" count="2793" type="stmt"/>
+      <line num="140" count="2793" type="stmt"/>
+      <line num="144" count="2793" type="stmt"/>
+      <line num="149" count="2793" type="stmt"/>
+      <line num="153" count="931" type="stmt"/>
+      <line num="154" count="931" type="stmt"/>
+      <line num="155" count="2793" type="cond" truecount="1" falsecount="1"/>
+      <line num="156" count="931" type="stmt"/>
+      <line num="157" count="931" type="stmt"/>
+      <line num="158" count="931" type="stmt"/>
+      <line num="160" count="931" type="stmt"/>
+      <line num="188" count="2201" type="stmt"/>
+      <line num="190" count="2201" type="stmt"/>
+      <line num="191" count="2201" type="stmt"/>
+      <line num="194" count="2201" type="stmt"/>
+      <line num="195" count="2201" type="cond" truecount="2" falsecount="0"/>
+      <line num="196" count="2200" type="cond" truecount="1" falsecount="1"/>
+      <line num="200" count="2200" type="stmt"/>
+      <line num="205" count="2200" type="stmt"/>
+      <line num="219" count="2205" type="cond" truecount="4" falsecount="0"/>
+      <line num="221" count="2203" type="stmt"/>
+      <line num="225" count="2203" type="cond" truecount="2" falsecount="0"/>
+      <line num="227" count="735" type="stmt"/>
+      <line num="228" count="1468" type="cond" truecount="2" falsecount="0"/>
+      <line num="230" count="1466" type="stmt"/>
+      <line num="233" count="2" type="stmt"/>
+      <line num="236" count="2203" type="stmt"/>
+      <line num="237" count="2203" type="stmt"/>
+      <line num="238" count="2203" type="stmt"/>
+      <line num="240" count="2203" type="stmt"/>
+      <line num="278" count="2793" type="cond" truecount="2" falsecount="0"/>
+      <line num="279" count="2394" type="cond" truecount="2" falsecount="0"/>
+      <line num="281" count="2196" type="stmt"/>
+      <line num="282" count="2196" type="stmt"/>
+      <line num="283" count="2196" type="stmt"/>
+      <line num="286" count="2196" type="stmt"/>
+      <line num="289" count="2196" type="stmt"/>
+      <line num="290" count="2196" type="stmt"/>
+      <line num="293" count="2196" type="stmt"/>
+      <line num="294" count="2196" type="stmt"/>
+      <line num="297" count="2196" type="stmt"/>
+      <line num="298" count="2196" type="stmt"/>
+      <line num="301" count="2196" type="stmt"/>
+      <line num="305" count="2196" type="cond" truecount="1" falsecount="1"/>
+      <line num="306" count="2196" type="stmt"/>
+      <line num="307" count="2196" type="stmt"/>
+      <line num="310" count="2196" type="stmt"/>
+      <line num="317" count="2196" type="stmt"/>
+      <line num="321" count="2196" type="cond" truecount="1" falsecount="1"/>
+      <line num="324" count="2196" type="stmt"/>
+      <line num="325" count="2196" type="stmt"/>
+      <line num="326" count="2196" type="stmt"/>
+      <line num="328" count="2196" type="stmt"/>
+      <line num="356" count="2793" type="stmt"/>
+      <line num="357" count="2793" type="stmt"/>
+      <line num="359" count="2793" type="stmt"/>
+      <line num="360" count="2793" type="cond" truecount="1" falsecount="1"/>
+      <line num="361" count="2793" type="cond" truecount="1" falsecount="1"/>
+      <line num="363" count="2793" type="stmt"/>
+      <line num="364" count="2793" type="stmt"/>
+      <line num="389" count="2799" type="cond" truecount="2" falsecount="0"/>
+      <line num="390" count="2799" type="cond" truecount="2" falsecount="0"/>
+      <line num="393" count="2799" type="cond" truecount="1" falsecount="1"/>
+      <line num="395" count="2799" type="stmt"/>
+      <line num="415" count="2805" type="stmt"/>
+      <line num="416" count="2805" type="stmt"/>
+      <line num="428" count="4989" type="stmt"/>
+      <line num="429" count="4989" type="stmt"/>
+      <line num="430" count="4989" type="stmt"/>
+      <line num="431" count="4989" type="stmt"/>
+      <line num="439" count="30354" type="stmt"/>
+      <line num="446" count="2196" type="stmt"/>
+      <line num="454" count="931" type="stmt"/>
+      <line num="456" count="931" type="stmt"/>
+      <line num="457" count="2793" type="stmt"/>
+      <line num="460" count="2793" type="cond" truecount="4" falsecount="0"/>
+      <line num="463" count="931" type="stmt"/>
+      <line num="470" count="1862" type="cond" truecount="1" falsecount="1"/>
+      <line num="471" count="3724" type="cond" truecount="2" falsecount="0"/>
+      <line num="472" count="1862" type="stmt"/>
+      <line num="480" count="8386" type="cond" truecount="2" falsecount="0"/>
+    </file>
+    <file name="validator.js" path="C:\Users\enjoy\OneDrive\Работен плот\FINAL YEAR PROJECT\solar-estimator-app\js\validator.js">
+      <metrics statements="13" coveredstatements="13" conditionals="35" coveredconditionals="34" methods="3" coveredmethods="3"/>
+      <line num="12" count="8" type="cond" truecount="5" falsecount="0"/>
+      <line num="13" count="5" type="stmt"/>
+      <line num="14" count="5" type="cond" truecount="2" falsecount="0"/>
+      <line num="23" count="21" type="stmt"/>
+      <line num="34" count="149" type="cond" truecount="4" falsecount="0"/>
+      <line num="36" count="16" type="cond" truecount="4" falsecount="0"/>
+      <line num="37" count="14" type="cond" truecount="4" falsecount="0"/>
+      <line num="39" count="12" type="cond" truecount="2" falsecount="0"/>
+      <line num="40" count="11" type="cond" truecount="4" falsecount="0"/>
+      <line num="41" count="9" type="cond" truecount="3" falsecount="1"/>
+      <line num="43" count="9" type="cond" truecount="4" falsecount="0"/>
+      <line num="45" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="47" count="6" type="stmt"/>
+    </file>
+  </project>
+</coverage>

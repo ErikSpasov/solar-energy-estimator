@@ -12,6 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet (map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     html, body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
@@ -136,7 +140,7 @@
           <div>
             <h2 class="text-base font-semibold">1) Location</h2>
             <p class="text-sm text-slate-500">
-              Use "Locate Me" to populate latitude and longitude.
+              Use "Locate Me" or type coordinates manually.
             </p>
           </div>
 
@@ -157,12 +161,14 @@
               name="latitude"
               type="number"
               step="0.000001"
+              min="-90"
+              max="90"
               inputmode="decimal"
               placeholder="e.g. 52.2053"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-              readonly
             />
-            <p class="mt-1 text-xs text-slate-500">Auto-filled from browser geolocation.</p>
+            <p id="errLatitude" class="mt-1 text-xs text-red-600 hidden"></p>
+            <p class="mt-1 text-xs text-slate-500">Use "Locate Me" or type manually (−90 to 90).</p>
           </div>
 
           <div>
@@ -172,13 +178,20 @@
               name="longitude"
               type="number"
               step="0.000001"
+              min="-180"
+              max="180"
               inputmode="decimal"
               placeholder="e.g. 0.1218"
               class="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-              readonly
             />
-            <p class="mt-1 text-xs text-slate-500">Auto-filled from browser geolocation.</p>
+            <p id="errLongitude" class="mt-1 text-xs text-red-600 hidden"></p>
+            <p class="mt-1 text-xs text-slate-500">Use "Locate Me" or type manually (−180 to 180).</p>
           </div>
+        </div>
+
+        <!-- Map preview — shown when valid coordinates are set -->
+        <div id="mapContainer" class="mt-4 hidden rounded-lg overflow-hidden border border-slate-200" style="height: 220px;">
+          <div id="locationMap" style="height: 100%; width: 100%;"></div>
         </div>
       </section>
 
@@ -350,7 +363,7 @@
     </div>
   </main>
 
-  <script src="./js/app.js"></script>
+  <script type="module" src="./js/app.js"></script>
   
   <!-- Tooltip mobile support script -->
   <script>
