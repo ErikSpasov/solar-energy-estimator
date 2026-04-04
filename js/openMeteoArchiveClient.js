@@ -1,9 +1,8 @@
-// Responsibility: fetch historical DAILY data and return a weatherDataset-like object
+// Fetches historical daily weather data from Open-Meteo and returns a structured dataset
 
 export async function fetchHistoricalDaily(lat, lon, startDate, endDate) {
   const baseUrl = "https://archive-api.open-meteo.com/v1/archive";
 
-  // We request DAILY values only (keeps it simple + matches your methodology text)
   // shortwave_radiation_sum is MJ/m² per day (Open-Meteo docs)
   // wind_speed_10m_mean is m/s — needed by the Faiman cell temperature model
   const url =
@@ -37,7 +36,7 @@ export async function fetchHistoricalDaily(lat, lon, startDate, endDate) {
     throw new Error("Open-Meteo daily arrays missing or mismatched lengths.");
   }
 
-  // Build dataset (like your weatherDataset + weatherDataPoint)
+  // Build dataset
   const points = times.map((dateStr, i) => ({
     dateTime: dateStr,                           // "YYYY-MM-DD"
     shortwaveRadiationMJm2: rad[i],              // MJ/m²/day

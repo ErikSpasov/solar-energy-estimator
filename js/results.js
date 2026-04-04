@@ -18,7 +18,7 @@ const btnBack = el("btnBack");
 const btnExportCsv = el("btnExportCsv");
 const btnExportPdf = el("btnExportPdf");
 
-// Chart canvases (must exist in your HTML)
+// Chart canvases (exist in HTML)
 const monthlyCanvas = el("monthlyChart");
 const dailyCanvas = el("dailyChart");
 
@@ -53,12 +53,12 @@ async function run(cfg) {
 
   const result = estimateEnergy(dataset, cfg);
 
-  // Save result if you want export later
+  // Save result for export
   localStorage.setItem("estimationResult", JSON.stringify(result));
 
   renderMeta(cfg);
   renderKPIs(result);
-  renderAdvisory(result, cfg);  // UPDATED: Now passes both result and cfg
+  renderAdvisory(result, cfg);
   renderCharts(result);
 
   setStatus("Results loaded.", false);
@@ -100,12 +100,6 @@ function renderKPIs(result) {
   if (avgDailyEl) avgDailyEl.textContent = Number.isFinite(avgDaily) ? `${avgDaily.toFixed(1)}` : "—";
 }
 
-// ============================================================================
-// TASK 2: UPDATED ADVISORY RENDERING
-// ============================================================================
-// Now shows real optimal angles and potential improvement
-// ============================================================================
-
 function renderAdvisory(result, cfg) {
   const optimalTilt = result?.advisory?.optimalTiltDeg;
   const optimalAzimuth = result?.advisory?.optimalAzimuthDeg;
@@ -126,7 +120,7 @@ function renderAdvisory(result, cfg) {
   const userTilt = Number(cfg.tiltDeg);
   const userAzimuth = Number(cfg.azimuthDeg);
   
-  // Check if there's an advisory note element in your HTML
+  // Check if there's an advisory note element
   const advisoryNoteEl = el("advisoryNote");
   
   if (advisoryNoteEl) {

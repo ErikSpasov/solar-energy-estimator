@@ -34,7 +34,7 @@ export function estimateEnergy(dataset, cfg) {
     Number(cfg.azimuthDeg)
   );
 
-  // TASK 2: Find optimal tilt and azimuth angles
+  // Find optimal tilt and azimuth angles
   const advisory = findOptimalAngles(dataset, cfg);
 
   // Return results including advisory
@@ -49,7 +49,7 @@ export function estimateEnergy(dataset, cfg) {
 }
 
 // ============================================================================
-// TASK 2: ADVISORY OPTIMIZATION - Find best panel angles
+// ADVISORY OPTIMIZATION - Find best panel angles
 // ============================================================================
 // Tests many different angle combinations to find which produces most energy
 // This tells users if they could get more electricity by adjusting their panels
@@ -433,7 +433,6 @@ function getDayOfYear(date) {
 
 /**
  * Convert degrees to radians
- * (Math functions use radians, but humans think in degrees)
  */
 function toRadians(degrees) {
   return degrees * Math.PI / 180;
@@ -472,10 +471,7 @@ function avg(arr) {
   return sum / arr.length;
 }
 
-/**
- * Round number to 2 decimal places
- * Example: 123.456789 → 123.46
- */
+// Round number to 2 decimal places
 function round2(n) {
   return Math.round((Number(n) || 0) * 100) / 100;
 }

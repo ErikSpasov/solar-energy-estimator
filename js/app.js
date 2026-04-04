@@ -13,7 +13,6 @@ const longitude = el("longitude");
 const systemCapacityKwp = el("systemCapacityKwp");
 const tiltDeg = el("tiltDeg");
 const azimuthDeg = el("azimuthDeg");
-// REMOVED: const panelEfficiency = el("panelEfficiency");
 const performanceRatio = el("performanceRatio");
 
 const startDate = el("startDate");
@@ -28,7 +27,6 @@ const state = {
     systemCapacityKwp: null,
     tiltDeg: null,
     azimuthDeg: null,
-    // REMOVED: panelEfficiency: null,
     performanceRatio: null,
     startDate: null,
     endDate: null
@@ -62,7 +60,6 @@ function syncStateFromInputs() {
   cfg.systemCapacityKwp = toNumber(systemCapacityKwp.value);
   cfg.tiltDeg = toNumber(tiltDeg.value);
   cfg.azimuthDeg = toNumber(azimuthDeg.value);
-  // REMOVED: cfg.panelEfficiency = toNumber(panelEfficiency.value);
   cfg.performanceRatio = toNumber(performanceRatio.value);
 
   cfg.startDate = startDate.value || null;
@@ -143,7 +140,7 @@ async function locateMe() {
   );
 }
 
-// ======= Calculate (placeholder) =======
+// ======= Calculate =======
 function calculateEnergy() {
   const cfg = state.userConfiguration;
 
@@ -152,12 +149,8 @@ function calculateEnergy() {
     return;
   }
 
-  // Save for the next page (Results Dashboard)
   localStorage.setItem("userConfiguration", JSON.stringify(cfg));
-  showBanner("ok", "Configuration saved. Next step: fetch weather + run PV model.");
   window.location.href = "./results.html";
-
-  // Later: window.location.href = "./results.html";
 }
 
 // ======= Input Validation =======
@@ -297,7 +290,7 @@ endDate.addEventListener("change", applyDateConstraints);
 applyDateConstraints();
 
 [
-  systemCapacityKwp, tiltDeg, azimuthDeg, /* REMOVED: panelEfficiency, */ performanceRatio,
+  systemCapacityKwp, tiltDeg, azimuthDeg, performanceRatio,
   startDate, endDate
 ].forEach((input) => input.addEventListener("input", syncStateFromInputs));
 
