@@ -39,11 +39,11 @@ The application estimates solar PV energy generation using weather data, geograp
 
 ### System Configuration
 
-![Solar Energy Estimator Configuration](screenshots/configuration.jpg)
+![Solar Energy Estimator Configuration](screenshots/configuration.JPG)
 
 ### Results Dashboard
 
-![Solar Energy Estimator Results Dashboard](screenshots/results-dashboard.jpg)
+![Solar Energy Estimator Results Dashboard](screenshots/results-dashboard.JPG)
 
 ## Project Background
 
